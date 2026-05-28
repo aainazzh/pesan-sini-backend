@@ -12,18 +12,23 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Injectable()
 export class AuthService {
+
   create(createAuthDto: CreateAuthDto) {
     throw new Error('Method not implemented.');
   }
+
   findAll() {
     throw new Error('Method not implemented.');
   }
+
   findOne(arg0: number) {
     throw new Error('Method not implemented.');
   }
+
   update(arg0: number, updateAuthDto: UpdateAuthDto) {
     throw new Error('Method not implemented.');
   }
+
   remove(arg0: number) {
     throw new Error('Method not implemented.');
   }
@@ -62,6 +67,29 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload),
+    };
+
+  }
+
+  async register(createAuthDto: CreateAuthDto) {
+
+    const hashedPassword =
+      await this.bcryptService.hashPassword(
+        createAuthDto.password,
+      );
+
+    const user = await this.prisma.user.create({
+      data: {
+        username: createAuthDto.username,
+        password: hashedPassword,
+        role: createAuthDto.role,
+      },
+    });
+
+    return {
+      id: user.id,
+      username: user.username,
+      role: user.role,
     };
 
   }
