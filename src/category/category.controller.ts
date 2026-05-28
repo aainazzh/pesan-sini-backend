@@ -1,31 +1,21 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  Patch,
   Post,
-  UseGuards,
+  Body,
+  Patch,
+  Param,
+  Delete,
 } from '@nestjs/common';
 
-import { JwtAuthGuard }
-from 'src/guards/jwt-auth.guard';
+import { CategoryService } from './category.service';
 
-import { CategoryService }
-from './category.service';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
-import { CreateCategoryDto }
-from './dto/create-category.dto';
-
-import { UpdateCategoryDto }
-from './dto/update-category.dto';
-
-@UseGuards(
-  JwtAuthGuard,
-)
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Controller('category')
+
 export class CategoryController {
 
   constructor(
@@ -33,11 +23,9 @@ export class CategoryController {
   ) {}
 
   @Post()
-  create(
-    @Body() body: CreateCategoryDto,
-  ) {
+  create(@Body() createCategoryDto: CreateCategoryDto) {
 
-    return this.categoryService.create(body);
+    return this.categoryService.create(createCategoryDto);
 
   }
 
@@ -49,9 +37,7 @@ export class CategoryController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: string,
-  ) {
+  findOne(@Param('id') id: string) {
 
     return this.categoryService.findOne(+id);
 
@@ -62,21 +48,19 @@ export class CategoryController {
 
     @Param('id') id: string,
 
-    @Body() body: UpdateCategoryDto,
+    @Body() updateCategoryDto: UpdateCategoryDto,
 
   ) {
 
     return this.categoryService.update(
       +id,
-      body,
+      updateCategoryDto,
     );
 
   }
 
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-  ) {
+  remove(@Param('id') id: string) {
 
     return this.categoryService.remove(+id);
 
