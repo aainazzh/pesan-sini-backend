@@ -1,14 +1,8 @@
-import { Module }
-from '@nestjs/common';
-
-import { UserController }
-from './user.controller';
-
-import { UserService }
-from './user.service';
-
-import { PrismaModule }
-from 'src/prisma/prisma.module';
+import { Module }from '@nestjs/common';
+import { UserController }from './user.controller';
+import { UserService }from './user.service';
+import { PrismaModule }from 'src/prisma/prisma.module';
+import { BcryptService } from 'src/bcrypt/bcrypt.service';
 
 @Module({
 
@@ -22,6 +16,7 @@ from 'src/prisma/prisma.module';
 
   providers: [
     UserService,
+    BcryptService,
   ],
 
   exports: [
