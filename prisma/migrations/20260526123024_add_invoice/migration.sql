@@ -5,7 +5,7 @@
 
 */
 -- AlterTable
-ALTER TABLE `order` ADD COLUMN `invoiceNumber` VARCHAR(191) NULL;
+ALTER TABLE `Order` ADD COLUMN `invoiceNumber` VARCHAR(191) NULL;
 
 -- CreateIndex
 CREATE UNIQUE INDEX `Order_invoiceNumber_key` ON `Order`(`invoiceNumber`);
