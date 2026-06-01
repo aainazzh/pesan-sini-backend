@@ -6,6 +6,8 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class MenuService {
@@ -41,25 +43,38 @@ export class MenuService {
     });
   }
 
-  // DI SINI KITA TAMBAHKAN PROTEKSI (TRY-CATCH)
   async remove(id: number) {
     try {
-      // Coba hapus datanya dari database
+      // Cari menu untuk mengecek apakah ada file gambarnya
+      const menu = await this.prisma.menu.findUnique({ where: { id } });
+
+      if (!menu) {
+        throw new BadRequestException('Menu tidak ditemukan di database.');
+      }
+
+      // Hapus dulu menu ini dari semua riwayat nota pesanan (OrderItem)
+      await this.prisma.orderItem.deleteMany({
+        where: { menuId: id }
+      });
+
+      // Setelah riwayatnya bersih, baru hapus menunya dari daftar Menu
       const deletedMenu = await this.prisma.menu.delete({
         where: { id },
       });
-      return deletedMenu;
-    } catch (error: any) {
-      // P2003 adalah kode error Prisma kalau data masih berelasi (nyangkut di Foreign Key)
-      if (error.code === 'P2003') {
-        throw new BadRequestException(
-          'Menu ini tidak bisa dihapus karena masih tercatat di riwayat pesanan/transaksi pelanggan.'
-        );
+
+      // Bersihkan file fisik gambar (Kalau ada dan belum dihapus Railway)
+      if (menu.image) {
+        const imagePath = path.join(process.cwd(), menu.image);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
       }
-      
-      // Kalau ada error lain yang tidak terduga
+
+      return deletedMenu;
+
+    } catch (error: any) {
       console.error(error);
-      throw new InternalServerErrorException('Terjadi kesalahan di server saat menghapus menu.');
+      throw new InternalServerErrorException('Terjadi kesalahan sistem saat menghapus menu.');
     }
   }
 }
