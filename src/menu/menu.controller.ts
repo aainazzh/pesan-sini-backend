@@ -132,7 +132,7 @@ export class MenuController {
     @Body() body: UpdateMenuDto,
 
   ) {
-    console.log('BODY UPDATE:', body);
+
     return this.menuService.update(
       +id,
       body,
