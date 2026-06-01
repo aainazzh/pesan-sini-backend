@@ -1,99 +1,65 @@
-import { ValidationPipe }
-from '@nestjs/common';
-
-import { NestFactory }
-from '@nestjs/core';
-
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import {
   SwaggerModule,
   DocumentBuilder,
 } from '@nestjs/swagger';
-
 import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
+import { join } from 'path';
+import * as express from 'express';
 
-import { join }
-from 'path';
-
-import * as express
-from 'express';
-
-import { AppModule }
-from './app.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-
   const app =
-
     await NestFactory.create<NestExpressApplication>(
       AppModule,
     );
 
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
   app.use(
-
     '/uploads',
-
     express.static(
-
       join(
         process.cwd(),
         'uploads',
       ),
-
     ),
-
   );
 
   app.use(
-
     '/invoices',
-
     express.static(
-
       join(
         process.cwd(),
         'invoices',
       ),
-
     ),
-
   );
 
   app.useGlobalPipes(
-
     new ValidationPipe({
-
       whitelist: true,
-
       transform: true,
-
       forbidNonWhitelisted: true,
-
     }),
-
   );
 
   const config =
-
     new DocumentBuilder()
-
       .setTitle('PesanSini API')
-
-      .setDescription(
-        'Backend PesanSini',
-      )
-
+      .setDescription('Backend PesanSini')
       .setVersion('1.0')
-
       .addBearerAuth()
-
       .build();
 
   const document =
-
     SwaggerModule.createDocument(
       app,
       config,
@@ -105,8 +71,15 @@ async function bootstrap() {
     document,
   );
 
-  await app.listen(3000);
+  await app.listen(
+    process.env.PORT || 3000,
+  );
 
+  console.log(
+    `Application running on port ${
+      process.env.PORT || 3000
+    }`,
+  );
 }
 
 bootstrap();
