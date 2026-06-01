@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -58,20 +59,13 @@ export class OrderController {
   }
 
   @Post(':id/upload-proof')
-
   @UseInterceptors(
-
     FileInterceptor(
-
       'file',
-
       {
-
         storage: diskStorage({
-
           destination:
             './uploads',
-
           filename: (
             req,
             file,
@@ -79,9 +73,7 @@ export class OrderController {
           ) => {
 
             const uniqueName =
-
               Date.now() +
-
               extname(
                 file.originalname,
               );
@@ -92,30 +84,20 @@ export class OrderController {
             );
 
           },
-
         }),
-
       },
-
     ),
-
   )
-
   uploadProof(
-
     @Param('id') id: string,
 
     @UploadedFile()
     file: Express.Multer.File,
-
   ) {
 
     return this.orderService.uploadProof(
-
       +id,
-
       file.filename,
-
     );
 
   }
@@ -137,6 +119,17 @@ export class OrderController {
   ) {
 
     return this.orderService.rejectPayment(
+      +id,
+    );
+
+  }
+
+  @Delete(':id/cancel')
+  cancelOrder(
+    @Param('id') id: string,
+  ) {
+
+    return this.orderService.cancelOrder(
       +id,
     );
 

@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import {
@@ -13,11 +14,8 @@ from 'src/prisma/prisma.service';
 import { CreateOrderDto }
 from './dto/create-order.dto';
 
-import PDFDocument
-from 'pdfkit';
-
-import * as fs
-from 'fs';
+import PDFDocument from 'pdfkit';
+import * as fs from 'fs';
 
 @Injectable()
 export class OrderService {
@@ -32,14 +30,10 @@ export class OrderService {
 
     const table =
       await this.prisma.table.findUnique({
-
         where: {
-
           tableNumber:
             body.tableNumber,
-
         },
-
       });
 
     if (!table) {
@@ -53,24 +47,18 @@ export class OrderService {
     let subtotal = 0;
 
     const orderItemsData: {
-
       menuId: number;
-
       quantity: number;
-
       subtotal: number;
-
     }[] = [];
 
     for (const item of body.items) {
 
       const menu =
         await this.prisma.menu.findUnique({
-
           where: {
             id: item.menuId,
           },
-
         });
 
       if (!menu) {
@@ -82,7 +70,6 @@ export class OrderService {
       }
 
       const itemSubtotal =
-
         menu.price *
         item.quantity;
 
@@ -115,9 +102,7 @@ export class OrderService {
         data: {
 
           customerName:
-
             body.customerName ||
-
             'Guest',
 
           tableId:
@@ -127,23 +112,18 @@ export class OrderService {
             body.paymentMethod,
 
           paymentStatus:
-
             body.paymentMethod ===
             'QRIS'
-
-            ? PaymentStatus.WAITING_CONFIRMATION
-
-            : PaymentStatus.PENDING,
+              ? PaymentStatus.WAITING_CONFIRMATION
+              : PaymentStatus.PENDING,
 
           subtotal,
           tax,
           totalAmount,
 
           orderItems: {
-
             create:
               orderItemsData,
-
           },
 
         },
@@ -153,11 +133,9 @@ export class OrderService {
           table: true,
 
           orderItems: {
-
             include: {
               menu: true,
             },
-
           },
 
         },
@@ -188,11 +166,9 @@ export class OrderService {
         table: true,
 
         orderItems: {
-
           include: {
             menu: true,
           },
-
         },
 
       },
@@ -212,11 +188,9 @@ export class OrderService {
         table: true,
 
         orderItems: {
-
           include: {
             menu: true,
           },
-
         },
 
       },
@@ -237,7 +211,6 @@ export class OrderService {
       data: {
 
         paymentProof:
-
           `uploads/${filename}`,
 
       },
@@ -267,11 +240,9 @@ export class OrderService {
           table: true,
 
           orderItems: {
-
             include: {
               menu: true,
             },
-
           },
 
         },
@@ -279,22 +250,18 @@ export class OrderService {
       });
 
     const invoiceName =
-
       `invoice-order-${order.id}.pdf`;
 
     const invoicePath =
-
       `invoices/${invoiceName}`;
 
     const doc =
       new PDFDocument();
 
     doc.pipe(
-
       fs.createWriteStream(
         invoicePath,
       ),
-
     );
 
     doc.fontSize(20)
@@ -303,7 +270,6 @@ export class OrderService {
     doc.moveDown();
 
     doc.fontSize(12)
-
       .text(
         `Order ID: ${order.id}`,
       );
@@ -332,11 +298,7 @@ export class OrderService {
       (item) => {
 
         doc.text(
-
-          `${item.menu.name} x ${item.quantity}` +
-
-          ` = Rp${item.subtotal}`,
-
+          `${item.menu.name} x ${item.quantity} = Rp${item.subtotal}`,
         );
 
       },
@@ -364,7 +326,6 @@ export class OrderService {
         'Payment berhasil diverifikasi',
 
       invoiceUrl:
-
         `http://localhost:3000/invoices/${invoiceName}`,
 
     };
@@ -387,6 +348,67 @@ export class OrderService {
       },
 
     });
+
+  }
+
+  async cancelOrder(
+    id: number,
+  ) {
+
+    const order =
+      await this.prisma.order.findUnique({
+
+        where: {
+          id,
+        },
+
+        include: {
+          orderItems: true,
+        },
+
+      });
+
+    if (!order) {
+
+      throw new NotFoundException(
+        'Pesanan tidak ditemukan',
+      );
+
+    }
+
+    if (
+      order.paymentStatus ===
+      PaymentStatus.PAID
+    ) {
+
+      throw new BadRequestException(
+        'Pesanan yang sudah dibayar tidak dapat dibatalkan',
+      );
+
+    }
+
+    await this.prisma.orderItem.deleteMany({
+
+      where: {
+        orderId: id,
+      },
+
+    });
+
+    await this.prisma.order.delete({
+
+      where: {
+        id,
+      },
+
+    });
+
+    return {
+
+      message:
+        'Pesanan berhasil dibatalkan',
+
+    };
 
   }
 
