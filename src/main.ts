@@ -20,7 +20,8 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'https://pesan-sini.vercel.app/',
+      'http://localhost:3000',
+      'https://pesan-sini.vercel.app',
     ],
     credentials: true,
   });
@@ -56,9 +57,7 @@ async function bootstrap() {
   const config =
     new DocumentBuilder()
       .setTitle('PesanSini API')
-      .setDescription(
-        'Backend PesanSini',
-      )
+      .setDescription('Backend PesanSini')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
@@ -75,14 +74,10 @@ async function bootstrap() {
     document,
   );
 
-  await app.listen(
-    process.env.PORT || 3000,
-  );
+  await app.listen(3000);
 
   console.log(
-    `Application running on port ${
-      process.env.PORT || 3000
-    }`,
+    'Application running on port 3000',
   );
 }
 
