@@ -125,13 +125,66 @@ export class MenuController {
   }
 
   @Patch(':id')
+
+  @UseInterceptors(
+
+    FileInterceptor(
+
+      'image',
+
+      {
+
+        storage: diskStorage({
+
+          destination:
+            './uploads',
+
+          filename: (
+            req,
+            file,
+            callback,
+          ) => {
+
+            const uniqueName =
+
+              Date.now() +
+
+              extname(
+                file.originalname,
+              );
+
+            callback(
+              null,
+              uniqueName,
+            );
+
+          },
+
+        }),
+
+      },
+
+    ),
+
+  )
+
   update(
 
     @Param('id') id: string,
 
+    @UploadedFile()
+    file: Express.Multer.File,
+
     @Body() body: UpdateMenuDto,
 
   ) {
+
+    if (file) {
+
+      body.image =
+        `uploads/${file.filename}`;
+
+    }
 
     return this.menuService.update(
       +id,
