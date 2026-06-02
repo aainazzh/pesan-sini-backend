@@ -14,23 +14,21 @@ import {
   FileInterceptor,
 } from '@nestjs/platform-express';
 
-import { diskStorage }
-from 'multer';
-
-import { extname }
-from 'path';
-
 import { OrderService }
 from './order.service';
 
 import { CreateOrderDto }
 from './dto/create-order.dto';
 
+import { CloudinaryService }
+from 'src/cloudinary/cloudinary.service';
+
 @Controller('order')
 export class OrderController {
 
   constructor(
     private readonly orderService: OrderService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @Post()
@@ -38,7 +36,9 @@ export class OrderController {
     @Body() body: CreateOrderDto,
   ) {
 
-    return this.orderService.create(body);
+    return this.orderService.create(
+      body,
+    );
 
   }
 
@@ -54,50 +54,36 @@ export class OrderController {
     @Param('id') id: string,
   ) {
 
-    return this.orderService.findOne(+id);
+    return this.orderService.findOne(
+      +id,
+    );
 
   }
 
   @Post(':id/upload-proof')
+
   @UseInterceptors(
-    FileInterceptor(
-      'file',
-      {
-        storage: diskStorage({
-          destination:
-            './uploads',
-          filename: (
-            req,
-            file,
-            callback,
-          ) => {
-
-            const uniqueName =
-              Date.now() +
-              extname(
-                file.originalname,
-              );
-
-            callback(
-              null,
-              uniqueName,
-            );
-
-          },
-        }),
-      },
-    ),
+    FileInterceptor('file'),
   )
-  uploadProof(
-    @Param('id') id: string,
+
+  async uploadProof(
+
+    @Param('id')
+    id: string,
 
     @UploadedFile()
     file: Express.Multer.File,
+
   ) {
+
+    const uploaded: any =
+      await this.cloudinaryService.uploadImage(
+        file,
+      );
 
     return this.orderService.uploadProof(
       +id,
-      file.filename,
+      uploaded.secure_url,
     );
 
   }

@@ -9,10 +9,10 @@ import {
 } from '@prisma/client';
 
 import { PrismaService }
-from 'src/prisma/prisma.service';
+  from 'src/prisma/prisma.service';
 
 import { CreateOrderDto }
-from './dto/create-order.dto';
+  from './dto/create-order.dto';
 
 import PDFDocument from 'pdfkit';
 import * as fs from 'fs';
@@ -22,7 +22,7 @@ export class OrderService {
 
   constructor(
     private prisma: PrismaService,
-  ) {}
+  ) { }
 
   async create(
     body: CreateOrderDto,
@@ -113,7 +113,7 @@ export class OrderService {
 
           paymentStatus:
             body.paymentMethod ===
-            'QRIS'
+              'QRIS'
               ? PaymentStatus.WAITING_CONFIRMATION
               : PaymentStatus.PENDING,
 
@@ -201,7 +201,7 @@ export class OrderService {
 
   async uploadProof(
     id: number,
-    filename: string,
+    imageUrl: string,
   ) {
 
     return this.prisma.order.update({
@@ -211,7 +211,7 @@ export class OrderService {
       data: {
 
         paymentProof:
-          `uploads/${filename}`,
+          imageUrl,
 
       },
 

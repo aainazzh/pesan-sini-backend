@@ -18,12 +18,6 @@ import {
   FileInterceptor,
 } from '@nestjs/platform-express';
 
-import { diskStorage }
-from 'multer';
-
-import { extname }
-from 'path';
-
 import { MenuService }
 from './menu.service';
 
@@ -32,6 +26,9 @@ from './dto/create-menu.dto';
 
 import { UpdateMenuDto }
 from './dto/update-menu.dto';
+
+import { CloudinaryService }
+from 'src/cloudinary/cloudinary.service';
 
 @UseGuards(
   JwtAuthGuard,
@@ -42,69 +39,40 @@ export class MenuController {
 
   constructor(
     private readonly menuService: MenuService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @Post()
 
   @UseInterceptors(
-
-    FileInterceptor(
-
-      'image',
-
-      {
-
-        storage: diskStorage({
-
-          destination:
-            './uploads',
-
-          filename: (
-            req,
-            file,
-            callback,
-          ) => {
-
-            const uniqueName =
-
-              Date.now() +
-
-              extname(
-                file.originalname,
-              );
-
-            callback(
-              null,
-              uniqueName,
-            );
-
-          },
-
-        }),
-
-      },
-
-    ),
-
+    FileInterceptor('image'),
   )
 
-  create(
+  async create(
 
     @UploadedFile()
     file: Express.Multer.File,
 
-    @Body() body: CreateMenuDto,
+    @Body()
+    body: CreateMenuDto,
 
   ) {
 
     if (file) {
 
+      const uploaded: any =
+        await this.cloudinaryService.uploadImage(
+          file,
+        );
+
       body.image =
-        `uploads/${file.filename}`;
+        uploaded.secure_url;
 
     }
 
-    return this.menuService.create(body);
+    return this.menuService.create(
+      body,
+    );
 
   }
 
@@ -120,69 +88,40 @@ export class MenuController {
     @Param('id') id: string,
   ) {
 
-    return this.menuService.findOne(+id);
+    return this.menuService.findOne(
+      +id,
+    );
 
   }
 
   @Patch(':id')
 
   @UseInterceptors(
-
-    FileInterceptor(
-
-      'image',
-
-      {
-
-        storage: diskStorage({
-
-          destination:
-            './uploads',
-
-          filename: (
-            req,
-            file,
-            callback,
-          ) => {
-
-            const uniqueName =
-
-              Date.now() +
-
-              extname(
-                file.originalname,
-              );
-
-            callback(
-              null,
-              uniqueName,
-            );
-
-          },
-
-        }),
-
-      },
-
-    ),
-
+    FileInterceptor('image'),
   )
 
-  update(
+  async update(
 
-    @Param('id') id: string,
+    @Param('id')
+    id: string,
 
     @UploadedFile()
     file: Express.Multer.File,
 
-    @Body() body: UpdateMenuDto,
+    @Body()
+    body: UpdateMenuDto,
 
   ) {
 
     if (file) {
 
+      const uploaded: any =
+        await this.cloudinaryService.uploadImage(
+          file,
+        );
+
       body.image =
-        `uploads/${file.filename}`;
+        uploaded.secure_url;
 
     }
 
@@ -198,7 +137,9 @@ export class MenuController {
     @Param('id') id: string,
   ) {
 
-    return this.menuService.remove(+id);
+    return this.menuService.remove(
+      +id,
+    );
 
   }
 

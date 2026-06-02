@@ -13,9 +13,6 @@ from './dto/create-menu.dto';
 import { UpdateMenuDto }
 from './dto/update-menu.dto';
 
-import * as fs from 'fs';
-import * as path from 'path';
-
 @Injectable()
 export class MenuService {
 
@@ -83,40 +80,6 @@ export class MenuService {
 
     }
 
-    if (
-
-      body.image &&
-
-      menu.image
-
-    ) {
-
-      const imagePath =
-
-        path.join(
-
-          process.cwd(),
-
-          menu.image,
-
-        );
-
-      if (
-
-        fs.existsSync(
-          imagePath,
-        )
-
-      ) {
-
-        fs.unlinkSync(
-          imagePath,
-        );
-
-      }
-
-    }
-
     return this.prisma.menu.update({
 
       where: { id },
@@ -156,39 +119,11 @@ export class MenuService {
 
       });
 
-      const deletedMenu =
-        await this.prisma.menu.delete({
+      return this.prisma.menu.delete({
 
-          where: { id },
+        where: { id },
 
-        });
-
-      if (menu.image) {
-
-        const imagePath =
-
-          path.join(
-            process.cwd(),
-            menu.image,
-          );
-
-        if (
-
-          fs.existsSync(
-            imagePath,
-          )
-
-        ) {
-
-          fs.unlinkSync(
-            imagePath,
-          );
-
-        }
-
-      }
-
-      return deletedMenu;
+      });
 
     } catch (error: any) {
 
