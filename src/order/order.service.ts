@@ -111,11 +111,9 @@ export class OrderService {
           paymentMethod:
             body.paymentMethod,
 
+          // 👇 PERUBAHAN KE-1: Di awal selalu PENDING, tidak peduli QRIS atau CASH
           paymentStatus:
-            body.paymentMethod ===
-              'QRIS'
-              ? PaymentStatus.WAITING_CONFIRMATION
-              : PaymentStatus.PENDING,
+            PaymentStatus.PENDING,
 
           subtotal,
           tax,
@@ -212,6 +210,10 @@ export class OrderService {
 
         paymentProof:
           imageUrl,
+
+        // 👇 PERUBAHAN KE-2: Status berubah ke WAITING_CONFIRMATION setelah bukti diupload
+        paymentStatus:
+          PaymentStatus.WAITING_CONFIRMATION,
 
       },
 
