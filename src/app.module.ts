@@ -10,6 +10,7 @@ import { BcryptModule } from './bcrypt/bcrypt.module';
 import { CategoryModule } from './category/category.module';
 import { MenuModule } from './menu/menu.module';
 import { OrderModule } from './order/order.module';
+import { ReportModule } from './report/report.module';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { OrderModule } from './order/order.module';
     TableModule,
     OrderModule,
     PublicModule,
+    ReportModule,
   ],
 
   controllers: [AppController],
