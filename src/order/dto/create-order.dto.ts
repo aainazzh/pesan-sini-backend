@@ -44,5 +44,6 @@ export class CreateOrderDto {
   items!: OrderItemDto[];
   
   @IsString()
-  notes!: string;
+  @IsOptional()
+  notes?: string;
 }

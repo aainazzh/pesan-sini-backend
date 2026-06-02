@@ -52,7 +52,7 @@ model Category {
 model Menu {
   id Int @id @default(autoincrement())
 
-  name String
+  name  String
   price Int
 
   image String?
@@ -89,10 +89,12 @@ model Order {
 
   paymentStatus PaymentStatus @default(PENDING)
 
+  notes String?
+
   paymentProof String?
 
-  subtotal Int
-  tax Int
+  subtotal    Int
+  tax         Int
   totalAmount Int
 
   orderItems OrderItem[]

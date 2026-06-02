@@ -46,17 +46,14 @@ export class OrderService {
         });
 
       if (!menu) {
-
         throw new NotFoundException(
           `Menu ${item.menuId} tidak ditemukan`,
         );
-
       }
-
+      
       const itemSubtotal =
         menu.price *
         item.quantity;
-
       subtotal += itemSubtotal;
 
       orderItemsData.push({
