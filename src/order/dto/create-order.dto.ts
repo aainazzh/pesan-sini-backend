@@ -42,5 +42,7 @@ export class CreateOrderDto {
 
   @Type(() => OrderItemDto)
   items!: OrderItemDto[];
-
+  
+  @IsString()
+  notes!: string;
 }

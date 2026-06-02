@@ -1,25 +1,12 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-
-import {
-  PaymentStatus,
-} from '@prisma/client';
-
-import { PrismaService }
-  from 'src/prisma/prisma.service';
-
-import { CreateOrderDto }
-  from './dto/create-order.dto';
-
+import {Injectable,NotFoundException,BadRequestException} from '@nestjs/common';
+import {PaymentStatus} from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateOrderDto }from './dto/create-order.dto';
 import PDFDocument from 'pdfkit';
 import * as fs from 'fs';
 
 @Injectable()
 export class OrderService {
-
   constructor(
     private prisma: PrismaService,
   ) { }
@@ -27,7 +14,6 @@ export class OrderService {
   async create(
     body: CreateOrderDto,
   ) {
-
     const table =
       await this.prisma.table.findUnique({
         where: {
@@ -37,11 +23,9 @@ export class OrderService {
       });
 
     if (!table) {
-
       throw new NotFoundException(
         'Meja tidak ditemukan',
       );
-
     }
 
     let subtotal = 0;
@@ -98,46 +82,34 @@ export class OrderService {
 
     const order =
       await this.prisma.order.create({
-
         data: {
-
           customerName:
             body.customerName ||
             'Guest',
-
           tableId:
             table.id,
-
           paymentMethod:
             body.paymentMethod,
-
-          // 👇 PERUBAHAN KE-1: Di awal selalu PENDING, tidak peduli QRIS atau CASH
+          // PERUBAHAN KE-1: Di awal selalu PENDING, tidak peduli QRIS atau CASH
           paymentStatus:
             PaymentStatus.PENDING,
-
+            notes: body.notes,
           subtotal,
           tax,
           totalAmount,
-
           orderItems: {
             create:
               orderItemsData,
           },
-
         },
-
         include: {
-
           table: true,
-
           orderItems: {
             include: {
               menu: true,
             },
           },
-
         },
-
       });
 
     return {
