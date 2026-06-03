@@ -80,58 +80,6 @@ export class ReportService {
 
   }
 
-  async weeklyReport() {
-
-    const now = new Date();
-
-    const start =
-      new Date();
-
-    start.setDate(
-      now.getDate() - 7,
-    );
-
-    const orders =
-      await this.prisma.order.findMany({
-
-        where: {
-
-          paymentStatus:
-            PaymentStatus.PAID,
-
-          createdAt: {
-
-            gte: start,
-
-          },
-
-        },
-
-      });
-
-    const totalRevenue =
-      orders.reduce(
-        (
-          total,
-          order,
-        ) =>
-          total +
-          order.totalAmount,
-        0,
-      );
-
-    return {
-
-      period: 'weekly',
-
-      totalOrders:
-        orders.length,
-
-      totalRevenue,
-
-    };
-
-  }
 
   async monthlyReport() {
 
